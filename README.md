@@ -26,3 +26,20 @@ No requiere servidor ni base de datos para esta V1.
 - Ficha actúa como etiqueta de riesgo: tras pulsarla hay que clasificar el resultado como Bola dentro, Error no forzado o Winner.
 - Nuevo modificador Smash con la misma lógica.
 - Dashboard con desglose de Fichas y Smash: intentos, entran, falladas, winners, % éxito y % winner.
+
+## Final comparison update
+- Added a three-way report selector: Player 1 / Comparison / Player 2.
+- Added mirrored football-style comparison bars.
+- Added objective impact metrics:
+  - Positive relevance = Winners
+  - Negative relevance = Unforced errors + Return errors + Double faults
+  - Net impact = Positive relevance - Negative relevance
+- Risk is based only on Ficha attempts and their outcomes.
+- Smash remains a separate technical statistic and is not included in the risk metric.
+
+## V4 TEST - marcador
+- Al pulsar Fin de juego se obliga a seleccionar quién ganó: Jugador 1 + Jugador 2 o Pareja contraria.
+- El marcador de juegos se actualiza automáticamente.
+- Los sets estándar se detectan automáticamente (6-x con 2 de diferencia, 7-5 y 7-6).
+- El reporte muestra sets ganados y parciales de cada set.
+- Deshacer puede revertir el último juego asignado.

@@ -90,6 +90,62 @@
     .legend-name{display:flex;gap:7px;align-items:center}.dot{width:9px;height:9px;border-radius:50%}
     .timeline{display:flex;gap:3px;align-items:center;overflow:auto;padding:8px 0 3px}
     .eventdot{width:9px;height:28px;border-radius:5px;flex:0 0 auto}
+    .view-switch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0 14px}
+    .view-switch button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:14px;padding:12px;font-weight:900}
+    .view-switch button.active{background:var(--accent);border-color:var(--accent)}
+    .compare-head{display:grid;grid-template-columns:1fr 110px 1fr;gap:10px;align-items:center;margin-bottom:10px}
+    .compare-name{font-weight:900;font-size:18px;text-align:center}
+    .compare-name.left{color:#60a5fa}.compare-name.right{color:#f87171}
+    .impact-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+    .impact-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+    .impact-card .k{font-size:11px;color:var(--muted);margin-bottom:5px}
+    .impact-card .v{font-size:24px;font-weight:900}
+    .pos{color:var(--good)} .neg{color:var(--bad)}
+    .mirror{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
+    .mirror-row{display:grid;grid-template-columns:1fr 145px 1fr;gap:10px;align-items:center;margin:11px 0}
+    .mirror-label{text-align:center;font-size:12px;color:var(--muted);font-weight:800}
+    .mirror-side{display:grid;grid-template-columns:42px 1fr;gap:8px;align-items:center}
+    .mirror-side.right{grid-template-columns:1fr 42px}
+    .mirror-value{font-weight:900;font-size:13px;text-align:right}
+    .mirror-side.right .mirror-value{text-align:left}
+    .mirror-track{height:14px;background:#0c0e12;border:1px solid var(--line);border-radius:999px;overflow:hidden;display:flex;align-items:center}
+    .mirror-fill-left{height:100%;margin-left:auto;background:#3b82f6;border-radius:999px 0 0 999px}
+    .mirror-fill-right{height:100%;background:#ef4444;border-radius:0 999px 999px 0}
+    .risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .risk-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px}
+    .risk-card h3{margin-bottom:8px}
+    .risk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .risk-mini{background:#0c0e12;border:1px solid var(--line);border-radius:12px;padding:9px;text-align:center}
+    .risk-mini .k{font-size:10px;color:var(--muted)} .risk-mini .v{font-size:18px;font-weight:900}
+    .game-score{font-weight:900;color:var(--text);margin-top:2px}
+    .winner-picker{display:none;margin-top:10px;background:var(--panel);border:1px solid var(--accent);border-radius:18px;padding:14px}
+    .winner-picker.show{display:block}
+    .winner-picker h3{text-align:center;margin-bottom:6px}
+    .winner-picker p{text-align:center;color:var(--muted);font-size:12px;margin-bottom:12px}
+    .winner-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .winner-buttons button{min-height:62px;border-radius:15px;border:1px solid var(--line);font-weight:900;padding:10px}
+    .winner-team{background:#143124;color:#b7f7d6}
+    .winner-opp{background:#3a1719;color:#ffb4b4}
+    .score-banner{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;text-align:center}
+    .score-banner .teams{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+    .score-banner .team-name{font-weight:900;font-size:14px}
+    .score-banner .sets-score{font-size:30px;font-weight:950}
+    .score-banner .set-detail{font-size:12px;color:var(--muted);margin-top:7px}
+    @media(max-width:430px){
+      .winner-buttons{grid-template-columns:1fr}
+      .score-banner .teams{grid-template-columns:1fr auto 1fr}
+      .score-banner .team-name{font-size:11px}
+    }
+
+    @media(max-width:430px){
+      .view-switch{grid-template-columns:1fr}
+      .compare-head{grid-template-columns:1fr;gap:4px}
+      .mirror-row{grid-template-columns:1fr 96px 1fr;gap:6px}
+      .mirror-side{grid-template-columns:32px 1fr;gap:5px}.mirror-side.right{grid-template-columns:1fr 32px}
+      .risk-grid{grid-template-columns:1fr}.risk-stats{grid-template-columns:1fr 1fr}
+      .impact-grid{grid-template-columns:1fr}
+    }
+
     .modifier-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}
     .modifier-btn{min-height:52px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--text);font-weight:900}
     .modifier-btn.warn{box-shadow:inset 0 0 0 1px rgba(246,173,85,.30)}
@@ -113,7 +169,7 @@
   <div class="topbar">
     <div>
       <div class="brand">PADEL TRACKER</div>
-      <div class="small">Consistencia · Errores · Winners · v3</div>
+      <div class="small">Consistencia · Errores · Winners · v4 TEST</div>
     </div>
     <button id="homeBtn" class="secondary" style="padding:9px 12px">Inicio</button>
   </div>
@@ -134,7 +190,7 @@
   <section id="match" class="screen">
     <div class="match-head">
       <div id="p1title" class="player-title"></div>
-      <div class="score-meta"><div id="setGame">Set 1 · Juego 1</div><div id="elapsed">00:00</div></div>
+      <div class="score-meta"><div id="setGame">Set 1 · Juego 1</div><div id="liveGameScore" class="game-score">0–0</div><div id="elapsed">00:00</div></div>
       <div id="p2title" class="player-title"></div>
     </div>
     <div class="players">
@@ -146,6 +202,14 @@
       <button id="gameBtn" class="secondary">Fin de juego</button>
       <button id="setBtn" class="secondary">Fin de set</button>
       <button id="finishBtn" class="danger">Finalizar partido</button>
+    </div>
+    <div id="winnerPicker" class="winner-picker">
+      <h3>¿Quién ha ganado el juego?</h3>
+      <p>El juego no se cerrará hasta seleccionar la pareja ganadora.</p>
+      <div class="winner-buttons">
+        <button id="winTrackedBtn" class="winner-team">Jugador 1 + Jugador 2</button>
+        <button id="winOppBtn" class="winner-opp">Pareja contraria</button>
+      </div>
     </div>
   </section>
 
@@ -175,7 +239,7 @@ const MODIFIERS = [
   {key:'ficha', label:'Ficha', cls:'warn'},
   {key:'smash', label:'Smash', cls:'purple'}
 ];
-let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'}, dashPlayer:0, pending:[null,null] };
+let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'}, dashPlayer:0, dashView:'player', pending:[null,null], awaitingGameWinner:false };
 
 const $ = id => document.getElementById(id);
 function uid(){ return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
@@ -189,7 +253,7 @@ function elapsed(ms){ let s=Math.floor(ms/1000); let m=Math.floor(s/60); s%=60; 
 function newMatch(){
   const p1=$('p1name').value.trim() || 'Jugador 1';
   const p2=$('p2name').value.trim() || 'Jugador 2';
-  state.current={id:uid(), players:[p1,p2], startedAt:new Date().toISOString(), endedAt:null, set:1, game:1, events:[], boundaries:[]}; state.pending=[null,null];
+  state.current={id:uid(), players:[p1,p2], startedAt:new Date().toISOString(), endedAt:null, set:1, game:1, events:[], boundaries:[]}; state.pending=[null,null]; state.awaitingGameWinner=false;
   renderMatch();
   showScreen('match');
   startClock();
@@ -227,19 +291,61 @@ function playerPanel(idx){
       <button data-cancelp="${idx}">Cancelar</button></div>`:''}
     <div class="bottom-metric"><strong>${consistency(c)}%</strong><div>Golpes sin error / golpes registrados</div></div>`;
 }
+
+function setGameScore(m,setNo){
+  const games=(m.boundaries||[]).filter(b=>b.type==='game' && b.set===setNo);
+  return {
+    tracked:games.filter(b=>b.winner==='tracked').length,
+    opponent:games.filter(b=>b.winner==='opponent').length
+  };
+}
+function setIsComplete(a,b){
+  const high=Math.max(a,b), low=Math.min(a,b);
+  return (high>=6 && high-low>=2) || (high===7 && (low===5 || low===6));
+}
+function completedSets(m){
+  const sets=[...new Set((m.boundaries||[]).filter(b=>b.type==='game').map(b=>b.set))].sort((a,b)=>a-b);
+  return sets.map(s=>{
+    const sc=setGameScore(m,s);
+    return {set:s,tracked:sc.tracked,opponent:sc.opponent,complete:setIsComplete(sc.tracked,sc.opponent)};
+  }).filter(x=>x.complete);
+}
+function matchScoreSummary(m){
+  const sets=completedSets(m);
+  const trackedSets=sets.filter(s=>s.tracked>s.opponent).length;
+  const opponentSets=sets.filter(s=>s.opponent>s.tracked).length;
+  return {
+    trackedSets, opponentSets, sets,
+    detail:sets.length ? sets.map(s=>`${s.tracked}–${s.opponent}`).join(' · ') : 'Sin sets finalizados'
+  };
+}
+function updateWinnerPicker(){
+  const picker=$('winnerPicker');
+  if(!picker) return;
+  picker.classList.toggle('show',state.awaitingGameWinner);
+  $('gameBtn').disabled=state.awaitingGameWinner;
+  $('setBtn').disabled=state.awaitingGameWinner;
+  $('finishBtn').disabled=state.awaitingGameWinner;
+}
+
 function renderMatch(){
   $('p1title').textContent=state.current.players[0]; $('p2title').textContent=state.current.players[1];
   $('setGame').textContent=`Set ${state.current.set} · Juego ${state.current.game}`;
   $('p1panel').innerHTML=playerPanel(0); $('p2panel').innerHTML=playerPanel(1);
+  const liveScore=setGameScore(state.current,state.current.set);
+  $('liveGameScore').textContent=`${liveScore.tracked}–${liveScore.opponent}`;
+  updateWinnerPicker();
   document.querySelectorAll('.stat-btn').forEach(b=>b.onclick=()=>addEvent(+b.dataset.p,b.dataset.t));
   document.querySelectorAll('.modifier-btn').forEach(b=>b.onclick=()=>setModifier(+b.dataset.mp,b.dataset.m));
   document.querySelectorAll('[data-cancelp]').forEach(b=>b.onclick=()=>{state.pending[+b.dataset.cancelp]=null;renderMatch();});
 }
 function setModifier(player,modifier){
+  if(state.awaitingGameWinner){ toast('Primero selecciona quién ganó el juego'); return; }
   state.pending[player] = state.pending[player]===modifier ? null : modifier;
   renderMatch();
 }
 function addEvent(player,type){
+  if(state.awaitingGameWinner){ toast('Primero selecciona quién ganó el juego'); return; }
   const modifier=state.pending[player];
   if(modifier && !['in','ue','winner'].includes(type)){ toast('Tras Ficha/Smash selecciona Bola dentro, Error o Winner'); return; }
   state.current.events.push({id:uid(),ts:new Date().toISOString(),player,type,modifier:modifier||null,set:state.current.set,game:state.current.game});
@@ -247,24 +353,65 @@ function addEvent(player,type){
   renderMatch(); if(navigator.vibrate) navigator.vibrate(12);
 }
 function undo(){
+  if(state.awaitingGameWinner){
+    state.awaitingGameWinner=false; updateWinnerPicker(); toast('Fin de juego cancelado'); return;
+  }
   if(state.pending[0] || state.pending[1]){ state.pending=[null,null]; renderMatch(); toast('Selección cancelada'); return; }
-  const e=state.current.events.pop(); if(e){ renderMatch(); toast('Última acción deshecha'); } else toast('No hay acciones');
+
+  const lastEvent=state.current.events[state.current.events.length-1];
+  const gameBounds=(state.current.boundaries||[]).filter(b=>b.type==='game');
+  const lastGame=gameBounds[gameBounds.length-1];
+
+  if(lastGame && (!lastEvent || new Date(lastGame.ts) >= new Date(lastEvent.ts))){
+    const idx=state.current.boundaries.lastIndexOf(lastGame);
+    if(idx>=0) state.current.boundaries.splice(idx,1);
+    state.current.set=lastGame.set;
+    state.current.game=lastGame.game;
+    renderMatch(); toast('Último juego deshecho'); return;
+  }
+
+  const e=state.current.events.pop();
+  if(e){ renderMatch(); toast('Última acción deshecha'); } else toast('No hay acciones');
 }
 function endGame(){
+  if(state.awaitingGameWinner) return;
   state.pending=[null,null];
-  state.current.boundaries.push({type:'game',set:state.current.set,game:state.current.game,ts:new Date().toISOString()});
-  state.current.game++; renderMatch(); toast('Juego guardado');
+  state.awaitingGameWinner=true;
+  updateWinnerPicker();
+}
+function selectGameWinner(winner){
+  if(!state.awaitingGameWinner) return;
+  const setNo=state.current.set, gameNo=state.current.game;
+  state.current.boundaries.push({type:'game',set:setNo,game:gameNo,winner,ts:new Date().toISOString()});
+  state.awaitingGameWinner=false;
+
+  const sc=setGameScore(state.current,setNo);
+  if(setIsComplete(sc.tracked,sc.opponent)){
+    state.current.set++;
+    state.current.game=1;
+    renderMatch();
+    toast(`Set ${setNo} finalizado: ${sc.tracked}–${sc.opponent}`);
+  }else{
+    state.current.game++;
+    renderMatch();
+    toast(`Juego para ${winner==='tracked'?'Jugador 1 + Jugador 2':'pareja contraria'}`);
+  }
 }
 function endSet(){
-  state.pending=[null,null];
-  state.current.boundaries.push({type:'set',set:state.current.set,game:state.current.game,ts:new Date().toISOString()});
-  state.current.set++; state.current.game=1; renderMatch(); toast('Set guardado');
+  if(state.awaitingGameWinner){ toast('Primero selecciona quién ganó el juego'); return; }
+  const sc=setGameScore(state.current,state.current.set);
+  if(sc.tracked===0 && sc.opponent===0){ toast('Todavía no hay juegos en este set'); return; }
+  if(!confirm(`Cerrar manualmente el Set ${state.current.set} con ${sc.tracked}–${sc.opponent}?`)) return;
+  const oldSet=state.current.set;
+  state.current.boundaries.push({type:'manualSet',set:oldSet,score:[sc.tracked,sc.opponent],ts:new Date().toISOString()});
+  state.current.set++; state.current.game=1; renderMatch(); toast(`Set ${oldSet} cerrado manualmente`);
 }
 function finishMatch(){
+  if(state.awaitingGameWinner){ toast('Primero selecciona quién ganó el juego'); return; }
   if(!confirm('¿Finalizar y guardar el partido?')) return;
   clearInterval(state.tick); state.current.endedAt=new Date().toISOString();
   const matches=getMatches(); matches.unshift(state.current); saveMatches(matches);
-  state.dashMatch=state.current; state.current=null; state.filter={type:'match'}; state.dashPlayer=0;
+  state.dashMatch=state.current; state.current=null; state.filter={type:'match'}; state.dashPlayer=0; state.dashView='player';
   renderDashboard(); showScreen('dashboard'); renderHistory();
 }
 function renderHistory(){
@@ -277,7 +424,7 @@ function renderHistory(){
   document.querySelectorAll('.openMatch').forEach(b=>b.onclick=()=>openDashboard(b.dataset.id));
 }
 function openDashboard(id){
-  state.dashMatch=getMatches().find(m=>m.id===id); state.filter={type:'match'}; state.dashPlayer=0;
+  state.dashMatch=getMatches().find(m=>m.id===id); state.filter={type:'match'}; state.dashPlayer=0; state.dashView='player';
   renderDashboard(); showScreen('dashboard');
 }
 function filteredEvents(m){
@@ -377,6 +524,107 @@ function dashboardForPlayer(m, idx, ev){
     <div class="card"><div class="timeline">${dots || '<span class="small">Sin eventos en este filtro.</span>'}</div></div>
   `;
 }
+
+function impactStats(idx, ev){
+  const c=countsFor(idx,ev);
+  const positive=c.winner;
+  const negative=c.ue+c.returnErr+c.df;
+  return {positive, negative, net:positive-negative, consistency:consistency(c)};
+}
+function fichaRiskStats(idx, ev){
+  const s=modifierStats(idx,ev,'ficha');
+  return {total:s.total, in:s.in, ue:s.ue, winner:s.winner, success:pct(s.in+s.winner,s.total), winnerPct:pct(s.winner,s.total)};
+}
+function mirrorRow(label,left,right){
+  const max=Math.max(1,left,right);
+  const lw=Math.round(left/max*100), rw=Math.round(right/max*100);
+  return `<div class="mirror-row">
+    <div class="mirror-side">
+      <div class="mirror-value">${left}</div>
+      <div class="mirror-track"><div class="mirror-fill-left" style="width:${lw}%"></div></div>
+    </div>
+    <div class="mirror-label">${label}</div>
+    <div class="mirror-side right">
+      <div class="mirror-track"><div class="mirror-fill-right" style="width:${rw}%"></div></div>
+      <div class="mirror-value">${right}</div>
+    </div>
+  </div>`;
+}
+function comparisonDashboard(m, ev){
+  const c1=countsFor(0,ev), c2=countsFor(1,ev);
+  const i1=impactStats(0,ev), i2=impactStats(1,ev);
+  const f1=fichaRiskStats(0,ev), f2=fichaRiskStats(1,ev);
+  const rows=[
+    ['Bolas dentro',c1.in,c2.in],
+    ['Winners',c1.winner,c2.winner],
+    ['Errores no forzados',c1.ue,c2.ue],
+    ['Errores en el resto',c1.returnErr,c2.returnErr],
+    ['Dobles faltas',c1.df,c2.df],
+    ['Fichas',f1.total,f2.total],
+    ['Smashes',modifierStats(0,ev,'smash').total,modifierStats(1,ev,'smash').total]
+  ];
+  const riskCard=(name,s)=>`<div class="risk-card">
+    <h3>${name}</h3>
+    <div class="risk-stats">
+      <div class="risk-mini"><div class="k">Fichas</div><div class="v">${s.total}</div></div>
+      <div class="risk-mini"><div class="k">Entran</div><div class="v">${s.in}</div></div>
+      <div class="risk-mini"><div class="k">Fallan</div><div class="v">${s.ue}</div></div>
+      <div class="risk-mini"><div class="k">Winners</div><div class="v">${s.winner}</div></div>
+      <div class="risk-mini"><div class="k">% éxito</div><div class="v">${s.success}%</div></div>
+      <div class="risk-mini"><div class="k">% winner</div><div class="v">${s.winnerPct}%</div></div>
+    </div>
+  </div>`;
+  return `
+    <div class="compare-head">
+      <div class="compare-name left">${m.players[0]}</div>
+      <div class="small" style="text-align:center">COMPARATIVA</div>
+      <div class="compare-name right">${m.players[1]}</div>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card"><div class="k">${m.players[0]} · Impacto neto</div><div class="v ${i1.net>=0?'pos':'neg'}">${i1.net>0?'+':''}${i1.net}</div></div>
+      <div class="impact-card"><div class="k">Consistencia</div><div class="v">${i1.consistency}% · ${i2.consistency}%</div></div>
+      <div class="impact-card"><div class="k">${m.players[1]} · Impacto neto</div><div class="v ${i2.net>=0?'pos':'neg'}">${i2.net>0?'+':''}${i2.net}</div></div>
+    </div>
+    <div class="section-title">Rendimiento cara a cara</div>
+    <div class="mirror">${rows.map(r=>mirrorRow(r[0],r[1],r[2])).join('')}</div>
+    <div class="section-title">Impacto en puntos</div>
+    <div class="compare" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <h3>${m.players[0]}</h3>
+        <div class="legend-list">
+          <div class="legend-item"><span>Relevancia positiva · Winners</span><strong class="pos">+${i1.positive}</strong></div>
+          <div class="legend-item"><span>Relevancia negativa · Puntos regalados</span><strong class="neg">-${i1.negative}</strong></div>
+          <div class="legend-item"><span>Impacto neto</span><strong class="${i1.net>=0?'pos':'neg'}">${i1.net>0?'+':''}${i1.net}</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>${m.players[1]}</h3>
+        <div class="legend-list">
+          <div class="legend-item"><span>Relevancia positiva · Winners</span><strong class="pos">+${i2.positive}</strong></div>
+          <div class="legend-item"><span>Relevancia negativa · Puntos regalados</span><strong class="neg">-${i2.negative}</strong></div>
+          <div class="legend-item"><span>Impacto neto</span><strong class="${i2.net>=0?'pos':'neg'}">${i2.net>0?'+':''}${i2.net}</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Riesgo · Fichas</div>
+    <div class="risk-grid">${riskCard(m.players[0],f1)}${riskCard(m.players[1],f2)}</div>
+    <div class="small" style="margin-top:8px">El riesgo se calcula únicamente a partir de las Fichas. Los Smashes se muestran como estadística técnica, pero no forman parte del indicador de riesgo.</div>
+  `;
+}
+
+
+function scoreBanner(m){
+  const s=matchScoreSummary(m);
+  return `<div class="score-banner">
+    <div class="teams">
+      <div class="team-name">${m.players[0]} + ${m.players[1]}</div>
+      <div class="sets-score">${s.trackedSets} – ${s.opponentSets}</div>
+      <div class="team-name">Pareja contraria</div>
+    </div>
+    <div class="set-detail">${s.detail}</div>
+  </div>`;
+}
+
 function renderDashboard(){
   const m=state.dashMatch; if(!m) return;
   $('dashTitle').textContent=`${m.players[0]} vs ${m.players[1]}`; $('dashDate').textContent=fmtDate(m.startedAt);
@@ -385,18 +633,24 @@ function renderDashboard(){
     state.filter=t.dataset.f==='match'?{type:'match'}:{type:'set',set:+t.dataset.s}; renderDashboard();
   });
   const ev=filteredEvents(m);
+
   $('dashboardContent').innerHTML=`
-    <div class="player-select">
-      <button id="selP1" class="${state.dashPlayer===0?'active':''}">${m.players[0]}</button>
-      <button id="selP2" class="${state.dashPlayer===1?'active':''}">${m.players[1]}</button>
+    ${scoreBanner(m)}
+    <div class="view-switch">
+      <button id="viewP1" class="${state.dashView==='player'&&state.dashPlayer===0?'active':''}">${m.players[0]}</button>
+      <button id="viewCompare" class="${state.dashView==='compare'?'active':''}">Comparativa</button>
+      <button id="viewP2" class="${state.dashView==='player'&&state.dashPlayer===1?'active':''}">${m.players[1]}</button>
     </div>
-    ${dashboardForPlayer(m,state.dashPlayer,ev)}
+    ${state.dashView==='compare' ? comparisonDashboard(m,ev) : dashboardForPlayer(m,state.dashPlayer,ev)}
   `;
-  $('selP1').onclick=()=>{state.dashPlayer=0;renderDashboard();};
-  $('selP2').onclick=()=>{state.dashPlayer=1;renderDashboard();};
+
+  $('viewP1').onclick=()=>{state.dashView='player';state.dashPlayer=0;renderDashboard();};
+  $('viewP2').onclick=()=>{state.dashView='player';state.dashPlayer=1;renderDashboard();};
+  $('viewCompare').onclick=()=>{state.dashView='compare';renderDashboard();};
 }
 $('startBtn').onclick=newMatch;
 $('undoBtn').onclick=undo; $('gameBtn').onclick=endGame; $('setBtn').onclick=endSet; $('finishBtn').onclick=finishMatch;
+$('winTrackedBtn').onclick=()=>selectGameWinner('tracked'); $('winOppBtn').onclick=()=>selectGameWinner('opponent');
 $('homeBtn').onclick=()=>{ renderHistory(); showScreen('home'); };
 $('backHistoryBtn').onclick=()=>{ renderHistory(); showScreen('home'); };
 renderHistory();
