@@ -1,4 +1,4 @@
-const CACHE = 'padel-tracker-v8-test';
+const CACHE = 'padel-tracker-v8-1-test';
 const ASSETS = ['./manifest.webmanifest'];
 
 self.addEventListener('install', event => {

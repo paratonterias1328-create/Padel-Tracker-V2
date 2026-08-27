@@ -200,7 +200,7 @@
   <div class="topbar">
     <div>
       <div class="brand">PADEL TRACKER</div>
-      <div class="small">Consistencia · Errores · Winners · v8 TEST</div>
+      <div class="small">Consistencia · Errores · Winners · v8.1 TEST</div>
     </div>
     <button id="homeBtn" class="secondary" style="padding:9px 12px">Inicio</button>
   </div>
@@ -274,7 +274,7 @@ const MODIFIERS = [
 let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'}, dashPlayer:0, dashView:'player', pending:[null,null], awaitingGameWinner:false };
 
 const $ = id => document.getElementById(id);
-function uid(){ return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function uid(){ return (window.crypto && typeof window.crypto.randomUUID==='function') ? window.crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
 function saveMatches(matches){ localStorage.setItem('padelMatches', JSON.stringify(matches)); }
 function getMatches(){ return JSON.parse(localStorage.getItem('padelMatches') || '[]'); }
 function showScreen(id){ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active')); $(id).classList.add('active'); }
@@ -324,6 +324,45 @@ function playerPanel(idx){
       <button data-cancelp="${idx}">Cancelar</button></div>`:''}
     <div class="bottom-metric"><strong>${consistency(c)}%</strong><div>Este juego · golpes sin error</div></div>`;
 }
+
+function setGameScore(m,setNo){
+  const games=(m.boundaries||[]).filter(b=>b.type==='game' && b.set===setNo);
+  return {
+    tracked:games.filter(b=>b.winner==='tracked').length,
+    opponent:games.filter(b=>b.winner==='opponent').length
+  };
+}
+function setIsComplete(a,b){
+  const high=Math.max(a,b), low=Math.min(a,b);
+  return (high>=6 && high-low>=2) || (high===7 && (low===5 || low===6));
+}
+function completedSets(m){
+  const sets=[...new Set((m.boundaries||[]).filter(b=>b.type==='game').map(b=>b.set))].sort((a,b)=>a-b);
+  return sets.map(s=>{
+    const sc=setGameScore(m,s);
+    return {set:s,tracked:sc.tracked,opponent:sc.opponent,complete:setIsComplete(sc.tracked,sc.opponent)};
+  }).filter(x=>x.complete);
+}
+function matchScoreSummary(m){
+  const sets=completedSets(m);
+  const trackedSets=sets.filter(s=>s.tracked>s.opponent).length;
+  const opponentSets=sets.filter(s=>s.opponent>s.tracked).length;
+  return {
+    trackedSets,
+    opponentSets,
+    sets,
+    detail:sets.length ? sets.map(s=>`${s.tracked}–${s.opponent}`).join(' · ') : 'Sin sets finalizados'
+  };
+}
+function updateWinnerPicker(){
+  const picker=$('winnerPicker');
+  if(!picker) return;
+  picker.classList.toggle('show',state.awaitingGameWinner);
+  $('gameBtn').disabled=state.awaitingGameWinner;
+  $('setBtn').disabled=state.awaitingGameWinner;
+  $('finishBtn').disabled=state.awaitingGameWinner;
+}
+
 function renderMatch(){
   $('p1title').textContent=state.current.players[0]; $('p2title').textContent=state.current.players[1];
   $('setGame').textContent=`Set ${state.current.set} · Juego ${state.current.game}`;

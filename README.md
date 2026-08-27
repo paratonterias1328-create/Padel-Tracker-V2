@@ -54,3 +54,8 @@ No requiere servidor ni base de datos para esta V1.
 - Índice de Impacto 0–100 ponderado: 45% puntos, 30% consistencia, 15% Fichas, 10% contexto competitivo.
 - Resumen automático del jugador con mayor impacto positivo.
 - Borrado de partidos desde Historial con confirmación.
+
+## V8.1 TEST - hotfix
+- Corregido el fallo que impedía iniciar un partido.
+- Restauradas las funciones internas del marcador que se perdieron durante la generación de V8.
+- Mejorada la compatibilidad del generador de IDs entre navegadores.
