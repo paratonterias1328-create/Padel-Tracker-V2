@@ -10,3 +10,8 @@ Primera versión funcional de una web-app móvil para registrar estadísticas de
 ## Datos
 Los partidos se guardan localmente en el navegador mediante localStorage.
 No requiere servidor ni base de datos para esta V1.
+
+
+## V2
+- Winner y ficha cuentan como golpes sin error en el porcentaje de consistencia.
+- Dashboard rediseñado con selector de jugador, barras por categoría, donut de consistencia y secuencia de eventos.

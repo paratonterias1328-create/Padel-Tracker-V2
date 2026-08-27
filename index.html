@@ -67,6 +67,31 @@
     .bar{flex:1;min-width:5px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#5b8cff,#345acb);opacity:.9}
     .legend{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px}
     .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    .player-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
+    .player-select button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:14px;padding:12px;font-weight:800}
+    .player-select button.active{background:var(--accent);border-color:var(--accent)}
+    .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .hero{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+    .hero .k{font-size:11px;color:var(--muted);margin-bottom:5px}.hero .v{font-size:25px;font-weight:900}
+    .bars{display:grid;gap:10px;margin-top:8px}
+    .barrow{display:grid;grid-template-columns:125px 1fr 38px;gap:8px;align-items:center}
+    .barlabel{font-size:12px;color:var(--muted)}
+    .track{height:12px;background:#0c0e12;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+    .fill{height:100%;border-radius:999px}
+    .fill.good{background:var(--good)} .fill.bad{background:var(--bad)}
+    .fill.warn{background:var(--warn)} .fill.accent{background:var(--accent)}
+    .fill.purple{background:var(--purple)}
+    .barval{text-align:right;font-size:12px;font-weight:800}
+    .donut-wrap{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center}
+    .donut{width:140px;height:140px;border-radius:50%;display:grid;place-items:center;position:relative}
+    .donut::after{content:"";width:88px;height:88px;border-radius:50%;background:var(--panel);position:absolute}
+    .donut .center{z-index:1;text-align:center}.donut .center strong{display:block;font-size:24px}.donut .center span{font-size:10px;color:var(--muted)}
+    .legend-list{display:grid;gap:7px}.legend-item{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+    .legend-name{display:flex;gap:7px;align-items:center}.dot{width:9px;height:9px;border-radius:50%}
+    .timeline{display:flex;gap:3px;align-items:center;overflow:auto;padding:8px 0 3px}
+    .eventdot{width:9px;height:28px;border-radius:5px;flex:0 0 auto}
+    @media(max-width:430px){.hero-grid{grid-template-columns:1fr 1fr}.donut-wrap{grid-template-columns:1fr}.donut{margin:auto}.barrow{grid-template-columns:105px 1fr 32px}}
+
     @media (max-width:430px){
       .app{padding-left:8px;padding-right:8px}
       .players{gap:6px}.player{padding:7px}.btn-grid{gap:6px}
@@ -139,7 +164,7 @@ const TYPES = [
   {key:'returnErr', label:'Error en el resto', cls:'bad'},
   {key:'df', label:'Doble falta', cls:'bad'}
 ];
-let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'} };
+let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'}, dashPlayer:0 };
 
 const $ = id => document.getElementById(id);
 function uid(){ return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
@@ -172,7 +197,8 @@ function totalHits(c){ return Object.values(c).reduce((a,b)=>a+b,0); }
 function ballsPlayed(c){ return c.in+c.ue+c.winner+c.ficha+c.returnErr+c.df; }
 function consistency(c){
   const denom=ballsPlayed(c); if(!denom) return 0;
-  return Math.round(c.in/denom*100);
+  const successful = c.in + c.winner + c.ficha;
+  return Math.round(successful/denom*100);
 }
 function playerPanel(idx){
   const c=countsFor(idx,state.current.events);
@@ -181,7 +207,7 @@ function playerPanel(idx){
       <span class="n">${c[t.key]}</span><span class="label">${t.label}</span>
     </button>`).join('')
   }</div>
-  <div class="bottom-metric"><strong>${consistency(c)}%</strong><div>Bolas dentro / golpes registrados</div></div>`;
+  <div class="bottom-metric"><strong>${consistency(c)}%</strong><div>Golpes sin error / golpes registrados</div></div>`;
 }
 function renderMatch(){
   $('p1title').textContent=state.current.players[0]; $('p2title').textContent=state.current.players[1];
@@ -208,7 +234,7 @@ function finishMatch(){
   if(!confirm('¿Finalizar y guardar el partido?')) return;
   clearInterval(state.tick); state.current.endedAt=new Date().toISOString();
   const matches=getMatches(); matches.unshift(state.current); saveMatches(matches);
-  state.dashMatch=state.current; state.current=null; state.filter={type:'match'};
+  state.dashMatch=state.current; state.current=null; state.filter={type:'match'}; state.dashPlayer=0;
   renderDashboard(); showScreen('dashboard'); renderHistory();
 }
 function renderHistory(){
@@ -221,7 +247,7 @@ function renderHistory(){
   document.querySelectorAll('.openMatch').forEach(b=>b.onclick=()=>openDashboard(b.dataset.id));
 }
 function openDashboard(id){
-  state.dashMatch=getMatches().find(m=>m.id===id); state.filter={type:'match'};
+  state.dashMatch=getMatches().find(m=>m.id===id); state.filter={type:'match'}; state.dashPlayer=0;
   renderDashboard(); showScreen('dashboard');
 }
 function filteredEvents(m){
@@ -242,14 +268,56 @@ function metricRows(c){
   return [
     ['Golpes registrados',total],['Bolas dentro',c.in],['Errores no forzados',c.ue],
     ['Winners',c.winner],['Fichas',c.ficha],['Errores de resto',c.returnErr],
-    ['Dobles faltas',c.df],['Puntos regalados',gifted],['% bolas dentro',consistency(c)+'%'],
+    ['Dobles faltas',c.df],['Puntos regalados',gifted],['% golpes sin error',consistency(c)+'%'],
     ['Errores / 100 golpes',err100],['Winners / ENF',ratio]
   ];
 }
-function playerDash(name,c){
-  return `<div class="card"><h3>${name}</h3>
-    <div class="compare">${metricRows(c).map(([n,v])=>`<div class="metric-card"><div class="name">${n}</div><div class="value">${v}</div></div>`).join('')}</div>
-  </div>`;
+function pct(n,d){ return d ? Math.round(n/d*100) : 0; }
+function dashboardForPlayer(m, idx, ev){
+  const c=countsFor(idx,ev), total=ballsPlayed(c), gifted=c.ue+c.returnErr+c.df;
+  const max=Math.max(1,c.in,c.ue,c.winner,c.ficha,c.returnErr,c.df);
+  const rows=[
+    ['Bola dentro',c.in,'good'],['Winner',c.winner,'accent'],['Ficha',c.ficha,'warn'],
+    ['Error no forzado',c.ue,'bad'],['Error en el resto',c.returnErr,'purple'],['Doble falta',c.df,'bad']
+  ];
+  const success=c.in+c.winner+c.ficha;
+  const fail=gifted;
+  const successPct=pct(success,total);
+  const failPct=100-successPct;
+  const donut=`conic-gradient(var(--good) 0 ${successPct}%, var(--bad) ${successPct}% 100%)`;
+  const dots=ev.filter(e=>e.player===idx).slice(-80).map(e=>{
+    const cls={in:'good',winner:'accent',ficha:'warn',ue:'bad',returnErr:'purple',df:'bad'}[e.type];
+    const col={good:'var(--good)',accent:'var(--accent)',warn:'var(--warn)',bad:'var(--bad)',purple:'var(--purple)'}[cls];
+    return `<span class="eventdot" style="background:${col}" title="${TYPES.find(t=>t.key===e.type)?.label||e.type}"></span>`;
+  }).join('');
+  return `
+    <div class="hero-grid">
+      <div class="hero"><div class="k">Golpes registrados</div><div class="v">${total}</div></div>
+      <div class="hero"><div class="k">Golpes sin error</div><div class="v">${successPct}%</div></div>
+      <div class="hero"><div class="k">Puntos regalados</div><div class="v">${gifted}</div></div>
+      <div class="hero"><div class="k">Winners</div><div class="v">${c.winner}</div></div>
+      <div class="hero"><div class="k">Errores no forzados</div><div class="v">${c.ue}</div></div>
+      <div class="hero"><div class="k">Fichas</div><div class="v">${c.ficha}</div></div>
+    </div>
+    <div class="section-title">Distribución de golpes</div>
+    <div class="card">
+      <div class="bars">${rows.map(([name,v,cls])=>`
+        <div class="barrow"><div class="barlabel">${name}</div><div class="track"><div class="fill ${cls}" style="width:${Math.round(v/max*100)}%"></div></div><div class="barval">${v}</div></div>
+      `).join('')}</div>
+    </div>
+    <div class="section-title">Consistencia</div>
+    <div class="card donut-wrap">
+      <div class="donut" style="background:${donut}"><div class="center"><strong>${successPct}%</strong><span>sin error</span></div></div>
+      <div class="legend-list">
+        <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--good)"></span>Golpes sin error</div><strong>${success}</strong></div>
+        <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--bad)"></span>Errores que regalan punto</div><strong>${fail}</strong></div>
+        <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--accent)"></span>Winners</div><strong>${c.winner}</strong></div>
+        <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--warn)"></span>Fichas</div><strong>${c.ficha}</strong></div>
+      </div>
+    </div>
+    <div class="section-title">Secuencia reciente</div>
+    <div class="card"><div class="timeline">${dots || '<span class="small">Sin eventos en este filtro.</span>'}</div></div>
+  `;
 }
 function renderDashboard(){
   const m=state.dashMatch; if(!m) return;
@@ -258,25 +326,16 @@ function renderDashboard(){
   document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
     state.filter=t.dataset.f==='match'?{type:'match'}:{type:'set',set:+t.dataset.s}; renderDashboard();
   });
-  const ev=filteredEvents(m), c1=countsFor(0,ev), c2=countsFor(1,ev);
-  const sets=[...new Set(m.events.map(e=>e.set))];
-  let trend='';
-  if(sets.length){
-    const vals=sets.map(s=>{
-      const es=m.events.filter(e=>e.set===s), a=countsFor(0,es), b=countsFor(1,es);
-      return {s, a:consistency(a), b:consistency(b)};
-    });
-    trend=`<div class="section-title">Consistencia por set</div><div class="card">
-      <div class="small">${m.players[0]}</div><div class="spark">${vals.map(v=>`<div class="bar" title="Set ${v.s}: ${v.a}%" style="height:${Math.max(3,v.a)}%"></div>`).join('')}</div>
-      <div class="legend">${vals.map(v=>`<span>S${v.s}</span>`).join('')}</div>
-      <div style="height:12px"></div>
-      <div class="small">${m.players[1]}</div><div class="spark">${vals.map(v=>`<div class="bar" title="Set ${v.s}: ${v.b}%" style="height:${Math.max(3,v.b)}%"></div>`).join('')}</div>
-      <div class="legend">${vals.map(v=>`<span>S${v.s}</span>`).join('')}</div>
-    </div>`;
-  }
-  $('dashboardContent').innerHTML=`<div class="compare" style="grid-template-columns:1fr;gap:10px">
-    ${playerDash(m.players[0],c1)}${playerDash(m.players[1],c2)}
-  </div>${trend}`;
+  const ev=filteredEvents(m);
+  $('dashboardContent').innerHTML=`
+    <div class="player-select">
+      <button id="selP1" class="${state.dashPlayer===0?'active':''}">${m.players[0]}</button>
+      <button id="selP2" class="${state.dashPlayer===1?'active':''}">${m.players[1]}</button>
+    </div>
+    ${dashboardForPlayer(m,state.dashPlayer,ev)}
+  `;
+  $('selP1').onclick=()=>{state.dashPlayer=0;renderDashboard();};
+  $('selP2').onclick=()=>{state.dashPlayer=1;renderDashboard();};
 }
 $('startBtn').onclick=newMatch;
 $('undoBtn').onclick=undo; $('gameBtn').onclick=endGame; $('setBtn').onclick=endSet; $('finishBtn').onclick=finishMatch;
