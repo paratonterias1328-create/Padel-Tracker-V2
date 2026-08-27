@@ -15,3 +15,8 @@ No requiere servidor ni base de datos para esta V1.
 ## V2
 - Winner y ficha cuentan como golpes sin error en el porcentaje de consistencia.
 - Dashboard rediseñado con selector de jugador, barras por categoría, donut de consistencia y secuencia de eventos.
+
+
+## V2.1
+- Corregida la caché del Service Worker para que las nuevas versiones de GitHub Pages se actualicen correctamente.
+- Añadido indicador visible v2.1.
