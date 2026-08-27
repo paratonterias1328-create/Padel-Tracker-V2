@@ -20,3 +20,9 @@ No requiere servidor ni base de datos para esta V1.
 ## V2.1
 - Corregida la caché del Service Worker para que las nuevas versiones de GitHub Pages se actualicen correctamente.
 - Añadido indicador visible v2.1.
+
+## V3
+- Ficha deja de contar como golpe independiente.
+- Ficha actúa como etiqueta de riesgo: tras pulsarla hay que clasificar el resultado como Bola dentro, Error no forzado o Winner.
+- Nuevo modificador Smash con la misma lógica.
+- Dashboard con desglose de Fichas y Smash: intentos, entran, falladas, winners, % éxito y % winner.

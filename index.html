@@ -90,6 +90,14 @@
     .legend-name{display:flex;gap:7px;align-items:center}.dot{width:9px;height:9px;border-radius:50%}
     .timeline{display:flex;gap:3px;align-items:center;overflow:auto;padding:8px 0 3px}
     .eventdot{width:9px;height:28px;border-radius:5px;flex:0 0 auto}
+    .modifier-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}
+    .modifier-btn{min-height:52px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--text);font-weight:900}
+    .modifier-btn.warn{box-shadow:inset 0 0 0 1px rgba(246,173,85,.30)}
+    .modifier-btn.purple{box-shadow:inset 0 0 0 1px rgba(167,139,250,.30)}
+    .modifier-btn.active{outline:2px solid var(--accent);background:#111827}
+    .pending-box{margin-top:7px;padding:9px 10px;border:1px dashed var(--accent);border-radius:12px;font-size:11px;text-align:center;color:var(--text)}
+    .pending-box button{margin-left:6px;border:none;border-radius:9px;padding:5px 8px;background:var(--panel2);color:var(--text)}
+
     @media(max-width:430px){.hero-grid{grid-template-columns:1fr 1fr}.donut-wrap{grid-template-columns:1fr}.donut{margin:auto}.barrow{grid-template-columns:105px 1fr 32px}}
 
     @media (max-width:430px){
@@ -105,7 +113,7 @@
   <div class="topbar">
     <div>
       <div class="brand">PADEL TRACKER</div>
-      <div class="small">Consistencia · Errores · Winners · v2.1</div>
+      <div class="small">Consistencia · Errores · Winners · v3</div>
     </div>
     <button id="homeBtn" class="secondary" style="padding:9px 12px">Inicio</button>
   </div>
@@ -156,15 +164,18 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const TYPES = [
+const OUTCOMES = [
   {key:'in', label:'Bola dentro', cls:'good'},
   {key:'ue', label:'Error no forzado', cls:'bad'},
   {key:'winner', label:'Winner', cls:'accent'},
-  {key:'ficha', label:'Ficha', cls:'warn'},
   {key:'returnErr', label:'Error en el resto', cls:'bad'},
   {key:'df', label:'Doble falta', cls:'bad'}
 ];
-let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'}, dashPlayer:0 };
+const MODIFIERS = [
+  {key:'ficha', label:'Ficha', cls:'warn'},
+  {key:'smash', label:'Smash', cls:'purple'}
+];
+let state = { current:null, tick:null, dashMatch:null, filter:{type:'match'}, dashPlayer:0, pending:[null,null] };
 
 const $ = id => document.getElementById(id);
 function uid(){ return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
@@ -178,7 +189,7 @@ function elapsed(ms){ let s=Math.floor(ms/1000); let m=Math.floor(s/60); s%=60; 
 function newMatch(){
   const p1=$('p1name').value.trim() || 'Jugador 1';
   const p2=$('p2name').value.trim() || 'Jugador 2';
-  state.current={id:uid(), players:[p1,p2], startedAt:new Date().toISOString(), endedAt:null, set:1, game:1, events:[], boundaries:[]};
+  state.current={id:uid(), players:[p1,p2], startedAt:new Date().toISOString(), endedAt:null, set:1, game:1, events:[], boundaries:[]}; state.pending=[null,null];
   renderMatch();
   showScreen('match');
   startClock();
@@ -189,44 +200,63 @@ function startClock(){
   state.tick=setInterval(()=> $('elapsed').textContent=elapsed(Date.now()-started),1000);
 }
 function countsFor(player, events){
-  const c={in:0,ue:0,winner:0,ficha:0,returnErr:0,df:0};
-  events.filter(e=>e.player===player).forEach(e=>c[e.type]++);
+  const c={in:0,ue:0,winner:0,returnErr:0,df:0};
+  events.filter(e=>e.player===player).forEach(e=>{ if(c[e.type]!==undefined) c[e.type]++; });
   return c;
 }
 function totalHits(c){ return Object.values(c).reduce((a,b)=>a+b,0); }
-function ballsPlayed(c){ return c.in+c.ue+c.winner+c.ficha+c.returnErr+c.df; }
+function ballsPlayed(c){ return c.in+c.ue+c.winner+c.returnErr+c.df; }
 function consistency(c){
   const denom=ballsPlayed(c); if(!denom) return 0;
-  const successful = c.in + c.winner + c.ficha;
+  const successful = c.in + c.winner;
   return Math.round(successful/denom*100);
 }
 function playerPanel(idx){
   const c=countsFor(idx,state.current.events);
-  return `<div class="btn-grid">${
-    TYPES.map(t=>`<button class="stat-btn ${t.cls}" data-p="${idx}" data-t="${t.key}">
+  const p=state.pending[idx];
+  const outcomeButtons = OUTCOMES.map(t=>{
+    const allowed = !p || ['in','ue','winner'].includes(t.key);
+    return `<button class="stat-btn ${t.cls}" data-p="${idx}" data-t="${t.key}" ${allowed?'':'disabled style="opacity:.35"'}>
       <span class="n">${c[t.key]}</span><span class="label">${t.label}</span>
-    </button>`).join('')
-  }</div>
-  <div class="bottom-metric"><strong>${consistency(c)}%</strong><div>Golpes sin error / golpes registrados</div></div>`;
+    </button>`;
+  }).join('');
+  const modifierButtons = MODIFIERS.map(t=>`<button class="modifier-btn ${t.cls} ${p===t.key?'active':''}" data-mp="${idx}" data-m="${t.key}">${t.label}</button>`).join('');
+  return `<div class="btn-grid">${outcomeButtons}</div>
+    <div class="modifier-row">${modifierButtons}</div>
+    ${p?`<div class="pending-box">${p==='ficha'?'Ficha':'Smash'} seleccionado → indica el resultado
+      <button data-cancelp="${idx}">Cancelar</button></div>`:''}
+    <div class="bottom-metric"><strong>${consistency(c)}%</strong><div>Golpes sin error / golpes registrados</div></div>`;
 }
 function renderMatch(){
   $('p1title').textContent=state.current.players[0]; $('p2title').textContent=state.current.players[1];
   $('setGame').textContent=`Set ${state.current.set} · Juego ${state.current.game}`;
   $('p1panel').innerHTML=playerPanel(0); $('p2panel').innerHTML=playerPanel(1);
   document.querySelectorAll('.stat-btn').forEach(b=>b.onclick=()=>addEvent(+b.dataset.p,b.dataset.t));
+  document.querySelectorAll('.modifier-btn').forEach(b=>b.onclick=()=>setModifier(+b.dataset.mp,b.dataset.m));
+  document.querySelectorAll('[data-cancelp]').forEach(b=>b.onclick=()=>{state.pending[+b.dataset.cancelp]=null;renderMatch();});
+}
+function setModifier(player,modifier){
+  state.pending[player] = state.pending[player]===modifier ? null : modifier;
+  renderMatch();
 }
 function addEvent(player,type){
-  state.current.events.push({id:uid(),ts:new Date().toISOString(),player,type,set:state.current.set,game:state.current.game});
+  const modifier=state.pending[player];
+  if(modifier && !['in','ue','winner'].includes(type)){ toast('Tras Ficha/Smash selecciona Bola dentro, Error o Winner'); return; }
+  state.current.events.push({id:uid(),ts:new Date().toISOString(),player,type,modifier:modifier||null,set:state.current.set,game:state.current.game});
+  state.pending[player]=null;
   renderMatch(); if(navigator.vibrate) navigator.vibrate(12);
 }
 function undo(){
+  if(state.pending[0] || state.pending[1]){ state.pending=[null,null]; renderMatch(); toast('Selección cancelada'); return; }
   const e=state.current.events.pop(); if(e){ renderMatch(); toast('Última acción deshecha'); } else toast('No hay acciones');
 }
 function endGame(){
+  state.pending=[null,null];
   state.current.boundaries.push({type:'game',set:state.current.set,game:state.current.game,ts:new Date().toISOString()});
   state.current.game++; renderMatch(); toast('Juego guardado');
 }
 function endSet(){
+  state.pending=[null,null];
   state.current.boundaries.push({type:'set',set:state.current.set,game:state.current.game,ts:new Date().toISOString()});
   state.current.set++; state.current.game=1; renderMatch(); toast('Set guardado');
 }
@@ -273,23 +303,47 @@ function metricRows(c){
   ];
 }
 function pct(n,d){ return d ? Math.round(n/d*100) : 0; }
+function modifierStats(player, events, modifier){
+  const arr=events.filter(e=>e.player===player && e.modifier===modifier);
+  return {
+    total:arr.length,
+    in:arr.filter(e=>e.type==='in').length,
+    ue:arr.filter(e=>e.type==='ue').length,
+    winner:arr.filter(e=>e.type==='winner').length
+  };
+}
 function dashboardForPlayer(m, idx, ev){
   const c=countsFor(idx,ev), total=ballsPlayed(c), gifted=c.ue+c.returnErr+c.df;
-  const max=Math.max(1,c.in,c.ue,c.winner,c.ficha,c.returnErr,c.df);
+  const ficha=modifierStats(idx,ev,'ficha');
+  const smash=modifierStats(idx,ev,'smash');
+  const max=Math.max(1,c.in,c.ue,c.winner,c.returnErr,c.df);
   const rows=[
-    ['Bola dentro',c.in,'good'],['Winner',c.winner,'accent'],['Ficha',c.ficha,'warn'],
+    ['Bola dentro',c.in,'good'],['Winner',c.winner,'accent'],
     ['Error no forzado',c.ue,'bad'],['Error en el resto',c.returnErr,'purple'],['Doble falta',c.df,'bad']
   ];
-  const success=c.in+c.winner+c.ficha;
+  const success=c.in+c.winner;
   const fail=gifted;
   const successPct=pct(success,total);
-  const failPct=100-successPct;
   const donut=`conic-gradient(var(--good) 0 ${successPct}%, var(--bad) ${successPct}% 100%)`;
+  const labelMap={in:'Bola dentro',winner:'Winner',ue:'Error no forzado',returnErr:'Error resto',df:'Doble falta'};
   const dots=ev.filter(e=>e.player===idx).slice(-80).map(e=>{
-    const cls={in:'good',winner:'accent',ficha:'warn',ue:'bad',returnErr:'purple',df:'bad'}[e.type];
-    const col={good:'var(--good)',accent:'var(--accent)',warn:'var(--warn)',bad:'var(--bad)',purple:'var(--purple)'}[cls];
-    return `<span class="eventdot" style="background:${col}" title="${TYPES.find(t=>t.key===e.type)?.label||e.type}"></span>`;
+    const cls={in:'good',winner:'accent',ue:'bad',returnErr:'purple',df:'bad'}[e.type];
+    const col={good:'var(--good)',accent:'var(--accent)',bad:'var(--bad)',purple:'var(--purple)'}[cls];
+    const mod=e.modifier?` · ${e.modifier==='ficha'?'Ficha':'Smash'}`:'';
+    return `<span class="eventdot" style="background:${col}" title="${labelMap[e.type]||e.type}${mod}"></span>`;
   }).join('');
+  const modifierCard=(title,s,cls)=>`
+    <div class="card">
+      <h3 style="margin-bottom:10px">${title}</h3>
+      <div class="hero-grid">
+        <div class="hero"><div class="k">Intentos</div><div class="v">${s.total}</div></div>
+        <div class="hero"><div class="k">Entran</div><div class="v">${s.in}</div></div>
+        <div class="hero"><div class="k">Winners</div><div class="v">${s.winner}</div></div>
+        <div class="hero"><div class="k">Falladas</div><div class="v">${s.ue}</div></div>
+        <div class="hero"><div class="k">% éxito</div><div class="v">${pct(s.in+s.winner,s.total)}%</div></div>
+        <div class="hero"><div class="k">% winner</div><div class="v">${pct(s.winner,s.total)}%</div></div>
+      </div>
+    </div>`;
   return `
     <div class="hero-grid">
       <div class="hero"><div class="k">Golpes registrados</div><div class="v">${total}</div></div>
@@ -297,7 +351,7 @@ function dashboardForPlayer(m, idx, ev){
       <div class="hero"><div class="k">Puntos regalados</div><div class="v">${gifted}</div></div>
       <div class="hero"><div class="k">Winners</div><div class="v">${c.winner}</div></div>
       <div class="hero"><div class="k">Errores no forzados</div><div class="v">${c.ue}</div></div>
-      <div class="hero"><div class="k">Fichas</div><div class="v">${c.ficha}</div></div>
+      <div class="hero"><div class="k">Fichas / Smash</div><div class="v">${ficha.total} / ${smash.total}</div></div>
     </div>
     <div class="section-title">Distribución de golpes</div>
     <div class="card">
@@ -312,8 +366,12 @@ function dashboardForPlayer(m, idx, ev){
         <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--good)"></span>Golpes sin error</div><strong>${success}</strong></div>
         <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--bad)"></span>Errores que regalan punto</div><strong>${fail}</strong></div>
         <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--accent)"></span>Winners</div><strong>${c.winner}</strong></div>
-        <div class="legend-item"><div class="legend-name"><span class="dot" style="background:var(--warn)"></span>Fichas</div><strong>${c.ficha}</strong></div>
       </div>
+    </div>
+    <div class="section-title">Golpes de riesgo</div>
+    <div style="display:grid;gap:10px">
+      ${modifierCard('Ficha',ficha,'warn')}
+      ${modifierCard('Smash',smash,'purple')}
     </div>
     <div class="section-title">Secuencia reciente</div>
     <div class="card"><div class="timeline">${dots || '<span class="small">Sin eventos en este filtro.</span>'}</div></div>
