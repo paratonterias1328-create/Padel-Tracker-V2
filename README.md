@@ -43,3 +43,14 @@ No requiere servidor ni base de datos para esta V1.
 - Los sets estándar se detectan automáticamente (6-x con 2 de diferencia, 7-5 y 7-6).
 - El reporte muestra sets ganados y parciales de cada set.
 - Deshacer puede revertir el último juego asignado.
+
+## V8 TEST
+- Contadores visibles reiniciados automáticamente por juego; los datos completos se conservan.
+- Nuevo registro Error forzado.
+- Colores coherentes entre botones y dashboard; Doble falta en amarillo.
+- Eliminado KPI Fichas/Smash del bloque principal.
+- Secuencia de golpes con divisores visuales de juego y set.
+- Gráfico radar comparativo.
+- Índice de Impacto 0–100 ponderado: 45% puntos, 30% consistencia, 15% Fichas, 10% contexto competitivo.
+- Resumen automático del jugador con mayor impacto positivo.
+- Borrado de partidos desde Historial con confirmación.
